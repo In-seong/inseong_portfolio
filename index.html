@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inseong — Full-Stack Developer</title>
+<meta name="description" content="Full-stack developer building real-world systems — enterprise SaaS, marketplaces, unmanned-store & IoT platforms across web, mobile, desktop.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07070e; --bg2:#0b0b16; --surface:#111220; --surface2:#161829;
+    --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.16);
+    --text:#eef0f8; --muted:#8c92ad; --dim:#5f6580;
+    --violet:#7b61ff; --cyan:#28e0cf; --pink:#ff5da2;
+    --maxw:1120px;
+    --grad:linear-gradient(100deg,var(--violet),var(--cyan));
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,.disp{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* 3D network canvas — persistent background */
+  #net{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% -10%,rgba(123,97,255,.10),transparent 55%),
+    linear-gradient(180deg,transparent 0%,rgba(7,7,14,.35) 60%,var(--bg) 100%)}
+  header,main,footer{position:relative;z-index:3}
+
+  /* custom cursor */
+  .cur,.curdot{position:fixed;top:0;left:0;z-index:100;pointer-events:none;border-radius:50%;mix-blend-mode:difference;will-change:transform}
+  .cur{width:34px;height:34px;border:1.5px solid #fff;margin:-17px 0 0 -17px;transition:width .2s,height .2s,margin .2s,opacity .2s;opacity:0}
+  .curdot{width:5px;height:5px;background:#fff;margin:-2.5px 0 0 -2.5px;opacity:0}
+  .cur.big{width:64px;height:64px;margin:-32px 0 0 -32px}
+  body.hascursor .cur,body.hascursor .curdot{opacity:1}
+
+  /* header */
+  header{position:sticky;top:0;z-index:50;background:rgba(7,7,14,.6);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{font-family:"Space Grotesk";font-weight:700;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;gap:9px}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--grad);box-shadow:0 0 12px var(--violet)}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  .lang{display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+  .lang button{background:none;border:none;color:var(--muted);padding:6px 13px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit}
+  .lang button.active{background:#fff;color:#0a0a12}
+  .cta{background:var(--grad);color:#0a0a12;padding:9px 18px;border-radius:999px;font-weight:700;font-size:.85rem;transition:transform .15s,box-shadow .2s}
+  .cta:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(123,97,255,.4)}
+
+  /* hero */
+  .hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 40px}
+  .status{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 14px;width:fit-content;background:rgba(255,255,255,.02)}
+  .status .pulse{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(40,224,207,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(40,224,207,.55)}70%{box-shadow:0 0 0 10px rgba(40,224,207,0)}100%{box-shadow:0 0 0 0 rgba(40,224,207,0)}}
+  .hero h1{font-size:clamp(2.6rem,8vw,5.6rem);line-height:1.02;font-weight:700;margin:26px 0 0}
+  .hero h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .line{display:block;overflow:hidden}
+  .hero .line > span{display:block;transform:translateY(105%)}
+  .hero .lead{color:var(--muted);font-size:clamp(1rem,2.2vw,1.22rem);max-width:600px;margin:28px 0 0}
+  .hero-cta{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
+  .btn-solid{background:var(--grad);color:#0a0a12;padding:13px 26px;border-radius:999px;font-weight:700;font-size:.92rem;transition:transform .15s,box-shadow .2s}
+  .btn-solid:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(123,97,255,.4)}
+  .btn-ghost{border:1px solid var(--border2);padding:13px 24px;border-radius:999px;font-weight:600;font-size:.92rem;transition:.15s}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+  .scrollcue{margin-top:54px;color:var(--dim);font-size:.75rem;letter-spacing:.2em;display:flex;align-items:center;gap:10px}
+  .scrollcue .bar{width:34px;height:1px;background:var(--dim);position:relative;overflow:hidden}
+  .scrollcue .bar:after{content:"";position:absolute;inset:0;background:var(--cyan);animation:sweep 2.2s infinite}
+  @keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+  /* marquee */
+  .marquee{border-block:1px solid var(--border);padding:16px 0;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .marquee .track{display:inline-flex;gap:40px;animation:scroll 32s linear infinite}
+  .marquee span{font-family:"Space Grotesk";font-size:1.1rem;font-weight:500;color:var(--muted)}
+  .marquee span b{color:var(--text)}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  section.block{padding:76px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:38px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:700}
+  .sec-head .idx{font-family:"Space Grotesk";color:var(--dim);font-size:.85rem}
+  .sec-head p{color:var(--muted);margin-top:6px;max-width:440px}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--bg2);padding:28px 22px}
+  .stat b{font-family:"Space Grotesk";display:block;font-size:2.6rem;font-weight:700;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat span{color:var(--muted);font-size:.82rem;display:block;margin-top:10px}
+
+  /* project grid */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transform-style:preserve-3d;transition:border-color .25s,box-shadow .25s;will-change:transform}
+  .card:hover{border-color:var(--border2);box-shadow:0 24px 60px -24px rgba(123,97,255,.5)}
+  .card .glow{position:absolute;inset:0;opacity:0;transition:opacity .3s;background:radial-gradient(400px circle at var(--mx,50%) var(--my,0%),rgba(123,97,255,.14),transparent 60%);pointer-events:none}
+  .card:hover .glow{opacity:1}
+  .card .shot{aspect-ratio:16/10;overflow:hidden;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .card .shot img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .5s}
+  .card:hover .shot img{transform:scale(1.04)}
+  .card .noshot{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 120% at 30% 20%,rgba(123,97,255,.12),transparent),var(--surface2)}
+  .noshot svg{width:70px;height:70px;stroke:url(#gg);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .card .body{padding:22px 22px 24px;transform:translateZ(30px)}
+  .kicker{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .domain{font-size:.72rem;font-weight:700;letter-spacing:.05em;color:var(--cyan);text-transform:uppercase}
+  .live{font-size:.68rem;font-weight:700;color:#0a0a12;background:var(--cyan);border-radius:999px;padding:2px 9px}
+  .card h3{font-size:1.28rem;font-weight:600;margin-bottom:9px}
+  .card .desc{color:var(--muted);font-size:.92rem}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .tag{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:.72rem;color:var(--muted)}
+  .card .more{margin-top:16px;font-size:.84rem;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:6px}
+  .card .more i{transition:transform .2s}
+  .card:hover .more i{transform:translateX(4px)}
+
+  /* detail */
+  .detail{padding:36px 0 20px}
+  .back{color:var(--muted);font-size:.9rem;font-weight:600;cursor:pointer;display:inline-flex;gap:7px;margin-bottom:26px}
+  .back:hover{color:var(--cyan)}
+  .dhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+  .detail h1{font-size:clamp(1.9rem,5vw,2.9rem);font-weight:700;margin:8px 0 16px}
+  .dlead{color:var(--muted);font-size:1.08rem;max-width:720px;margin-bottom:24px}
+  .dhero{width:100%;border:1px solid var(--border);border-radius:20px;overflow:hidden;margin:8px 0 32px;background:var(--surface2)}
+  .dhero img{width:100%;display:block}
+  .dhero.portrait{display:flex;justify-content:center;padding:26px}
+  .dhero.portrait img{width:auto;max-height:580px;border-radius:12px;border:1px solid var(--border)}
+  .dhero.noimg{aspect-ratio:16/6;display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 120% at 30% 20%,rgba(123,97,255,.14),transparent),var(--surface2)}
+  .dhero.noimg svg{width:104px;height:104px;stroke:url(#gg);fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+  .dgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:34px}
+  @media(max-width:680px){.dgrid{grid-template-columns:1fr}}
+  .dsec{margin:24px 0}
+  .dsec h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);font-weight:700;margin-bottom:11px}
+  .dsec p{color:#c6cadb}
+  .dsec ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .dsec li{color:#c6cadb;padding-left:22px;position:relative}
+  .dsec li:before{content:"";position:absolute;left:0;top:10px;width:9px;height:9px;border-radius:2px;background:var(--grad)}
+  .metabox{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px}
+  .metabox .row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);font-size:.9rem}
+  .metabox .row:last-child{border:none}
+  .metabox .k{color:var(--muted)} .metabox .v{text-align:right;font-weight:600}
+
+  .contact{text-align:center;border:1px solid var(--border);border-radius:26px;padding:60px 24px;background:radial-gradient(120% 140% at 50% 0%,rgba(123,97,255,.12),transparent 60%),var(--surface)}
+  .contact h2{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:700;margin-bottom:14px}
+  .contact p{color:var(--muted);max-width:520px;margin:0 auto 28px}
+  .emailtext{margin-top:20px;color:var(--muted);font-family:"Space Grotesk";font-size:1.02rem;cursor:pointer;letter-spacing:.02em;transition:color .2s}
+  .emailtext:hover{color:var(--cyan)}
+  footer{border-top:1px solid var(--border);text-align:center;color:var(--dim);font-size:.82rem;padding:36px 0 60px;margin-top:40px}
+
+  .reveal{opacity:0;transform:translateY(24px)}
+  [hidden]{display:none!important}
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .hero .line>span{transform:none}.reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="net"></canvas>
+<div class="veil"></div>
+<svg width="0" height="0"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b61ff"/><stop offset="1" stop-color="#28e0cf"/></linearGradient></defs></svg>
+<div class="cur"></div><div class="curdot"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand" data-mag onclick="go('')"><span class="dot"></span>Inseong</div>
+    <div class="nav-right">
+      <div class="lang"><button id="btn-en" class="active" onclick="setLang('en')">EN</button><button id="btn-ko" onclick="setLang('ko')">KO</button></div>
+      <a class="cta" data-mag href="#contact" onclick="go('')" data-i="hire"></a>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer><div class="wrap">© <span id="yr"></span> Inseong · <span data-i="role"></span> · <span data-i="built"></span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+/* ================= i18n ================= */
+var T={
+ hire:{en:"Let's talk",ko:"문의하기"},
+ role:{en:"Full-Stack Developer",ko:"풀스택 개발자"},
+ built:{en:"Built with Three.js",ko:"Three.js로 제작"},
+ status:{en:"Available for freelance work",ko:"프리랜스 작업 가능"},
+ lead:{en:"I design, build and deploy real-world systems — enterprise platforms, marketplaces, and unmanned-store & IoT products — across web, mobile, desktop and hardware. Solo, end to end.",
+       ko:"실제로 돌아가는 시스템을 설계·개발·배포합니다 — 엔터프라이즈 플랫폼, 마켓플레이스, 무인매장·IoT 제품을 웹·모바일·데스크탑·하드웨어까지. 단독으로, 처음부터 끝까지."},
+ viewwork:{en:"See the work",ko:"작업 보기"},
+ getintouch:{en:"Start a project",ko:"프로젝트 시작"},
+ scroll:{en:"SCROLL TO EXPLORE",ko:"스크롤"},
+ workTitle:{en:"Selected work",ko:"주요 작업"},
+ workSub:{en:"Client names anonymized. Tap any project to go deeper.",ko:"클라이언트명은 익명. 프로젝트를 누르면 상세로."},
+ more:{en:"Explore",ko:"자세히"},
+ back:{en:"All work",ko:"목록으로"},
+ live:{en:"Open live",ko:"라이브 열기"},
+ ov:{en:"Overview",ko:"개요"},pr:{en:"The problem",ko:"해결한 문제"},
+ bu:{en:"What I built",ko:"구축한 것"},hl:{en:"Highlights",ko:"하이라이트"},
+ roleK:{en:"Role",ko:"역할"},domainK:{en:"Domain",ko:"도메인"},stackK:{en:"Stack",ko:"스택"},statusK:{en:"Status",ko:"상태"},
+ contactTitle:{en:"Let's build something that ships.",ko:"실제로 배포되는 걸 함께 만들죠."},
+ contactLead:{en:"Web app, mobile app, marketplace or connected/IoT system — I take it from idea to a product running in production.",ko:"웹앱·모바일앱·마켓플레이스·IoT 시스템 — 아이디어부터 프로덕션에서 돌아가는 제품까지 맡습니다."},
+ email:{en:"Open mail app",ko:"메일앱 열기"},
+ copy:{en:"Copy email",ko:"이메일 복사"},
+ copied:{en:"Copied ✓",ko:"복사됨 ✓"}
+};
+var STACK=["Laravel","Vue","Nuxt","React","Next.js","Flutter","Swift","Kotlin","Node.js","Electron","Python","TypeScript","Three.js","Tailwind","MySQL","Nginx","IoT","WebGL"];
+
+/* ================= projects ================= */
+var ICONS={
+ commute:'<path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>',
+ buscall:'<path d="m14.5 12.5-8 8a2.12 2.12 0 1 1-3-3l8-8"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/>',
+ cortex:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="m7 9 3 3-3 3"/><path d="M13 15h3"/>',
+ cointrader:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>'
+};
+function iconSVG(id){return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[id]||'<circle cx="12" cy="12" r="9"/>')+'</svg>'}
+
+var P=[
+{id:"todomate",domain:{en:"Productivity",ko:"생산성"},live:"https://todomate.revuplan.com",img:"img/todomate.jpg",
+ title:{en:"DoItMate — Group To-Do",ko:"두잇메이트 — 그룹 투두"},tags:["Laravel 13","Vue 3","Capacitor","SQLite"],
+ role:{en:"Solo — full lifecycle",ko:"단독 — 전 과정"},status:{en:"Live",ko:"운영 중"},
+ summary:{en:"Collaborative to-do where teams manage tasks in shared rooms — web + iOS + Android from one codebase.",ko:"팀·가족이 방 단위로 함께 관리하는 협업 투두 — 웹·iOS·안드로이드가 단일 코드베이스."},
+ overview:{en:"A group to-do product built and operated entirely solo — API, apps and deployment. Live in production.",ko:"API·앱·배포까지 전부 단독으로 만들고 운영하는 그룹 투두 제품. 프로덕션 운영 중."},
+ problem:{en:"Personal to-do apps are everywhere, but teams and families lacked a simple shared space with reminders.",ko:"개인용 할 일 앱은 많지만, 팀·가족이 함께 쓰고 리마인드 받는 간단한 공간은 부족했습니다."},
+ built:{en:["Laravel 13 REST API with Sanctum token auth","Vue 3 SPA (Pinia, Tailwind v4)","Native app via Capacitor — one web deploy updates every platform","Scheduled reminders + automated daily backups","One-command deploy to Linux/Nginx"],ko:["Sanctum 토큰 인증 Laravel 13 REST API","Vue 3 SPA (Pinia · Tailwind v4)","Capacitor 네이티브 앱 — 웹 배포하면 앱도 즉시 최신","예약 리마인드 + 매일 자동 백업","Linux/Nginx 원커맨드 배포"]},
+ highlights:{en:["One codebase → web, iOS, Android","Self-hosted with automated backups & deploy","Live in production"],ko:["단일 코드베이스 → 웹·iOS·안드로이드","자동 백업·배포까지 자가호스팅","프로덕션 운영 중"]}},
+{id:"commute",domain:{en:"Enterprise SaaS",ko:"엔터프라이즈 SaaS"},live:null,img:null,
+ title:{en:"Tagless Commute Platform",ko:"태그리스 출퇴근 플랫폼"},tags:["Vue","Laravel","iOS","Android","DRT"],
+ role:{en:"Full-stack — web, apps, backend (solo)",ko:"풀스택 — 웹·앱·백엔드 (단독)"},status:{en:"Production · 20+ clients",ko:"운영 중 · 20+ 기업"},
+ summary:{en:"B2B commute-shuttle SaaS with tagless boarding — white-labeled for 20+ enterprise clients.",ko:"태그리스 승하차 기업 통근 셔틀 SaaS — 20+ 대기업 화이트라벨."},
+ overview:{en:"An enterprise commute platform running employee shuttles with automatic, card-free boarding and live route management — white-labeled across 20+ corporations.",ko:"무카드 자동 승하차와 실시간 노선 관리로 임직원 셔틀을 운영하는 기업 통근 플랫폼 — 20+ 대기업에 화이트라벨."},
+ problem:{en:"Corporate shuttles ran on manual attendance and static routes; employees tapped cards and operators had no live view.",ko:"기업 셔틀은 수동 출결·고정 노선에 의존했고, 임직원은 카드를 태그, 운영자는 실시간 현황을 못 봤습니다."},
+ built:{en:["Admin web (Vue + Laravel) for routes, stops, ridership, reporting","Native iOS/Android customer & driver apps (per-client branded)","Tagless boarding — automatic board/alight detection","Demand-responsive (DRT) routing + Kakao integration","White-label pipeline: 17 branded web deployments, 11 customer apps"],ko:["노선·정류장·탑승·리포트 관리자 웹 (Vue + Laravel)","네이티브 iOS/안드로이드 고객·기사 앱(클라이언트별 브랜딩)","태그리스 승하차 — 자동 승·하차 감지","수요응답형(DRT) 노선 + 카카오 연동","화이트라벨: 브랜드 웹 17개, 고객앱 11종"]},
+ highlights:{en:["Deployed for 20+ enterprise clients","17 white-label deployments, 11 customer apps","Admin platform · 2,100+ commits of iteration","Web + native apps + backend — solo"],ko:["20+ 대기업 배포","화이트라벨 17개, 고객앱 11종","관리자 플랫폼 2,100+ 커밋","웹·네이티브앱·백엔드 단독"]}},
+{id:"concede",domain:{en:"Unmanned Retail · IoT",ko:"무인매장 · IoT"},live:null,img:"img/concede.jpg",
+ title:{en:"Unmanned Screen-Golf System",ko:"무인 스크린골프 시스템"},tags:["Flutter","Electron","React","IoT","POS"],
+ role:{en:"App · desktop · web · IoT — solo",ko:"앱·데스크탑·웹·IoT — 단독"},status:{en:"Production · 10+ venues",ko:"운영 중 · 10+ 매장"},
+ summary:{en:"A full system to run screen-golf venues unmanned — ordering app, on-site POS agent, kiosk & IoT control.",ko:"스크린골프장을 무인으로 운영하는 전체 시스템 — 주문 앱·매장 POS 에이전트·키오스크·IoT 제어."},
+ overview:{en:"An end-to-end platform that runs screen-golf venues with no staff on site. Customers order from their bay, a PC agent handles POS & printing, and a central dashboard controls unmanned mode, doors and lighting while monitoring every venue in real time.",ko:"직원 없이 스크린골프장을 운영하는 엔드투엔드 플랫폼. 손님은 타석에서 주문, 매장 PC 에이전트가 POS·출력을 처리, 중앙 대시보드가 무인모드·출입문·조명을 제어하며 전 매장을 실시간 모니터링."},
+ problem:{en:"Unmanned venues need ordering, payment, door access and facility control to work together reliably across many distributed sites — with nobody on site to fix things.",ko:"무인 매장은 주문·결제·출입·시설제어가 여러 분산 매장에서 안정적으로 함께 돌아가야 하고, 현장에 고칠 사람이 없습니다."},
+ built:{en:["Bay-side ordering app (Flutter + push)","Always-on POS agent per venue PC (Electron — order receiving, thermal receipt printing, auto-update, crash monitoring)","Web homepage + kiosk apps","IoT integration for door access & lighting","Central dashboard: unmanned-mode toggle, door control, payments, distributed agent fleet monitor (version + heartbeat) across 10+ venues"],ko:["타석 주문 앱 (Flutter + 푸시)","매장 PC 상주 POS 에이전트 (Electron — 주문 수신·영수증 출력·자동 업데이트·장애 모니터링)","웹 홈페이지 + 키오스크 앱","출입문·조명 IoT 연동","중앙 대시보드: 무인모드·출입문 제어·결제 + 10+ 매장 분산 에이전트 플릿 모니터(버전·하트비트)"]},
+ highlights:{en:["Runs 10+ venues (dozens of room PCs) unmanned","Mobile app + desktop agent + web + kiosk + IoT — one developer","Real-time fleet monitoring (version & heartbeat)","Thermal printing + auto-updating on-site agents"],ko:["10+ 매장(수십 대 룸 PC) 무인 운영","모바일앱·데스크탑·웹·키오스크·IoT를 한 사람이","버전·하트비트 실시간 플릿 모니터링","영수증 출력 + 자동 업데이트 현장 에이전트"]}},
+{id:"buscall",domain:{en:"Marketplace",ko:"마켓플레이스"},live:null,img:null,
+ title:{en:"Charter-Bus Bidding Marketplace",ko:"전세버스 입찰 마켓플레이스"},tags:["Marketplace","Vue","Laravel","Payments"],
+ role:{en:"Full-stack (solo)",ko:"풀스택 (단독)"},status:{en:"Production",ko:"운영 중"},
+ summary:{en:"Two-sided marketplace: users post charter-bus requests, drivers bid with quotes.",ko:"양면 마켓플레이스: 사용자가 전세버스 요청을 올리면 기사들이 견적 입찰."},
+ overview:{en:"A two-sided marketplace connecting people who need a charter bus (trips, weddings, workshops) with drivers who bid to win the job — replacing phone-based coordination with an online bidding & matching flow.",ko:"전세버스가 필요한 사람(소풍·결혼식·워크숍)과 일을 따내려 입찰하는 기사를 연결하는 양면 마켓플레이스. 전화 조율을 온라인 입찰·매칭 흐름으로 대체."},
+ problem:{en:"Booking a charter bus meant phoning around for quotes — no single place to post a trip and compare competitive bids.",ko:"전세버스 예약은 여기저기 전화해 견적을 받아야 했고, 일정을 올려 견적을 비교할 곳이 없었습니다."},
+ built:{en:["Role-based accounts: riders post, drivers quote","Bidding & matching engine with request lifecycle","Payment integration + admin console","Vue + Laravel web, mobile app, admin"],ko:["역할 기반 계정: 사용자 요청, 기사 견적","요청 생애주기 입찰·매칭 엔진","결제 연동 + 관리자 콘솔","Vue + Laravel 웹·모바일앱·어드민"]},
+ highlights:{en:["Full two-sided marketplace with bidding","Rider ↔ driver roles and matching","Payments and admin built in"],ko:["입찰형 양면 마켓플레이스","사용자↔기사 역할·매칭","결제·관리자 내장"]}},
+{id:"cortex",domain:{en:"Dev Tooling",ko:"개발 도구"},live:null,img:null,
+ title:{en:"CORTEX — Remote Dev Dashboard",ko:"CORTEX — 원격 개발 대시보드"},tags:["Nuxt","node-pty","SQLite","Electron"],
+ role:{en:"Solo",ko:"단독"},status:{en:"In daily use (private)",ko:"상시 사용 (비공개)"},
+ summary:{en:"A dashboard to run and monitor many projects, terminals and AI coding sessions from anywhere.",ko:"여러 프로젝트·터미널·AI 코딩 세션을 어디서든 실행·모니터링하는 대시보드."},
+ overview:{en:"A developer dashboard that turns a home machine into a remote workstation — manage projects, run real terminals and AI sessions from phone or laptop, and never lose a session to a dropped connection.",ko:"집의 머신을 원격 워크스테이션으로 바꾸는 개발자 대시보드 — 폰·노트북에서 프로젝트·실제 터미널·AI 세션을 돌리고, 접속이 끊겨도 세션을 잃지 않음."},
+ problem:{en:"Working across many projects and long-running terminal/AI sessions from different devices is fragile — close the laptop and the session is gone.",ko:"여러 프로젝트와 장시간 터미널/AI 세션을 여러 기기에서 다루는 건 취약 — 노트북을 닫으면 세션이 사라집니다."},
+ built:{en:["Server-owned terminals (node-pty) with ring buffer + sequence — survive disconnects, replay full scrollback","Live agent status via CLI hooks","Project scanner, relationship graph, usage tracking","Nuxt + Nitro + SQLite; optional Electron shell"],ko:["서버 소유 터미널(node-pty) + 링버퍼·시퀀스 — 끊겨도 살아있고 전체 출력 복원","CLI 훅 기반 실시간 에이전트 상태","프로젝트 스캐너·관계 그래프·사용량 추적","Nuxt + Nitro + SQLite; 선택적 Electron"]},
+ highlights:{en:["Terminals survive disconnects — reattach with full history","Real-time multi-session monitoring","Used daily to build the projects in this portfolio"],ko:["끊겨도 살아있는 터미널 — 전체 히스토리 재접속","실시간 다중 세션 모니터링","이 포트폴리오 프로젝트들을 매일 이걸로 제작"]}},
+{id:"doctorcharting",domain:{en:"Healthcare · Edu",ko:"헬스케어 · 교육"},live:null,img:"img/doctorcharting.jpg",portrait:true,
+ title:{en:"DoctorCharting — Nursing Chart Trainer",ko:"닥터차팅 — 간호 차트 학습"},tags:["Flutter","Mobile","Healthcare"],
+ role:{en:"Solo",ko:"단독"},status:{en:"In development",ko:"개발 중"},
+ summary:{en:"A mobile app for nursing students and new nurses to practice medical charting.",ko:"간호학과 학생·신규 간호사가 차팅을 연습하는 모바일 앱."},
+ overview:{en:"A mobile learning app giving nursing students realistic, guided practice at medical charting — disease overviews, structured records, terminology drills and quizzes. In active development.",ko:"간호학과 학생에게 실제에 가까운 가이드형 차팅 연습을 주는 모바일 학습 앱 — 질환 개요·구조화 기록·용어 학습·문제풀이. 개발 중."},
+ problem:{en:"Nursing students get limited hands-on charting practice before clinical work.",ko:"간호 학생은 임상 전 실제 차팅 연습 기회가 부족합니다."},
+ built:{en:["Mobile app with guided charting practice, terminology drills and quizzes (in development)"],ko:["가이드형 차팅 연습·용어 학습·문제풀이 모바일 앱 (개발 중)"]},
+ highlights:{en:["Healthcare / education domain","Clean, focused mobile UI"],ko:["헬스케어·교육 도메인","깔끔하고 집중된 모바일 UI"]}}
+];
+
+/* ================= render ================= */
+var lang="en";
+function t(k){return T[k]?T[k][lang]:k}
+function pg(p,k){return p[k]?p[k][lang]:""}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function go(h){location.hash=h?('#/p/'+h):'#'}
+function setLang(l){lang=l;document.documentElement.lang=l;
+ document.getElementById('btn-en').classList.toggle('active',l==='en');
+ document.getElementById('btn-ko').classList.toggle('active',l==='ko');
+ try{localStorage.setItem('pf-lang',l)}catch(e){} render();}
+
+function cardHTML(p,i){
+ var shot=p.img?('<div class="shot"><img src="'+p.img+'" alt="" loading="lazy"></div>'):('<div class="noshot">'+iconSVG(p.id)+'</div>');
+ return '<article class="card reveal tilt" data-id="'+p.id+'" onclick="go(\''+p.id+'\')"><div class="glow"></div>'+shot+
+  '<div class="body"><div class="kicker"><span class="domain">'+esc(pg(p,'domain'))+'</span>'+(p.live?'<span class="live">LIVE</span>':'')+'</div>'+
+  '<h3>'+esc(pg(p,'title'))+'</h3><p class="desc">'+esc(pg(p,'summary'))+'</p>'+
+  '<div class="tags">'+p.tags.map(function(x){return '<span class="tag">'+esc(x)+'</span>'}).join('')+'</div>'+
+  '<span class="more">'+t('more')+' <i>→</i></span></div></article>';
+}
+function homeHTML(){
+ var mq=STACK.concat(STACK).map(function(x){return '<span>'+esc(x)+'</span>'}).join('<span>·</span>');
+ return '<section class="hero wrap">'+
+  '<div class="status reveal"><span class="pulse"></span>'+t('status')+'</div>'+
+  '<h1><span class="line"><span>'+t('role')+'</span></span><span class="line"><span class="grad">'+(lang==='ko'?'실제로 배포되는 제품':'that ships to production')+'</span></span></h1>'+
+  '<p class="lead reveal">'+esc(t('lead'))+'</p>'+
+  '<div class="hero-cta reveal"><a class="btn-solid" data-mag href="#work">'+t('viewwork')+'</a><a class="btn-ghost" data-mag href="#contact">'+t('getintouch')+'</a></div>'+
+  '<div class="scrollcue reveal"><span class="bar"></span>'+t('scroll')+'</div>'+
+  '</section>'+
+  '<div class="marquee"><div class="track">'+mq+'</div></div>'+
+  '<section class="block wrap"><div class="stats">'+
+   stat("20+", lang==='ko'?'대기업 배포':'enterprise deployments')+
+   stat("10+", lang==='ko'?'무인 매장 운영':'unmanned venues live')+
+   stat("7", lang==='ko'?'제품 도메인':'product domains')+
+   stat("100%", lang==='ko'?'단독 개발·배포':'built & shipped solo')+
+  '</div></section>'+
+  '<section class="block wrap" id="work"><div class="sec-head"><div><div class="idx">◆ '+t('workTitle')+'</div><h2>'+(lang==='ko'?'만든 것들':'Things I\'ve shipped')+'</h2></div><p>'+t('workSub')+'</p></div>'+
+  '<div class="grid">'+P.map(cardHTML).join('')+'</div></section>'+
+  contactHTML();
+}
+function stat(n,l){return '<div class="stat"><b data-count="'+n+'">0</b><span>'+l+'</span></div>'}
+function listBlock(title,arr){if(!arr||!arr.length)return '';return '<div class="dsec"><h4>'+title+'</h4><ul>'+arr.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>'}
+function detailHTML(p){
+ var hero=p.img?('<div class="dhero'+(p.portrait?' portrait':'')+'"><img src="'+p.img+'" alt=""></div>'):('<div class="dhero noimg">'+iconSVG(p.id)+'</div>');
+ return '<section class="detail wrap">'+
+  '<div class="back" data-mag onclick="go(\'\')">← '+t('back')+'</div>'+
+  '<div class="dhead"><span class="domain">'+esc(pg(p,'domain'))+'</span>'+(p.live?'<span class="live">LIVE</span>':'')+'</div>'+
+  '<h1>'+esc(pg(p,'title'))+'</h1><p class="dlead">'+esc(pg(p,'summary'))+'</p>'+
+  (p.live?'<a class="btn-solid" data-mag style="margin-bottom:26px" href="'+p.live+'" target="_blank" rel="noopener">'+t('live')+' →</a>':'')+
+  hero+
+  '<div class="dgrid"><div>'+
+   '<div class="dsec"><h4>'+t('ov')+'</h4><p>'+esc(pg(p,'overview'))+'</p></div>'+
+   '<div class="dsec"><h4>'+t('pr')+'</h4><p>'+esc(pg(p,'problem'))+'</p></div>'+
+   listBlock(t('bu'),pg(p,'built'))+listBlock(t('hl'),pg(p,'highlights'))+
+  '</div><div><div class="metabox">'+
+   '<div class="row"><span class="k">'+t('domainK')+'</span><span class="v">'+esc(pg(p,'domain'))+'</span></div>'+
+   '<div class="row"><span class="k">'+t('roleK')+'</span><span class="v">'+esc(pg(p,'role'))+'</span></div>'+
+   '<div class="row"><span class="k">'+t('statusK')+'</span><span class="v">'+esc(pg(p,'status'))+'</span></div>'+
+   '<div class="row"><span class="k">'+t('stackK')+'</span><span class="v">'+p.tags.join(' · ')+'</span></div>'+
+  '</div></div></div></section>'+contactHTML();
+}
+function contactHTML(){
+ return '<section class="block wrap" id="contact"><div class="contact reveal"><h2>'+t('contactTitle')+'</h2><p>'+esc(t('contactLead'))+'</p>'+
+  '<div class="hero-cta" style="justify-content:center;flex-wrap:wrap">'+
+   '<button class="btn-solid" data-mag onclick="copyEmail()">'+t('copy')+'</button>'+
+   '<a class="btn-ghost" data-mag href="mailto:inseonghwang196@gmail.com">'+t('email')+'</a>'+
+  '</div>'+
+  '<div class="emailtext" onclick="copyEmail()" title="'+t('copy')+'">inseonghwang196@gmail.com</div>'+
+  '</div></section>';
+}
+function copyEmail(){
+ var e='inseonghwang196@gmail.com';
+ try{navigator.clipboard.writeText(e)}catch(x){}
+ var b=document.querySelector('#contact .btn-solid');
+ if(b){b.textContent=t('copied');setTimeout(function(){b.textContent=t('copy')},1600);}
+}
+function render(){
+ document.querySelector('[data-i="hire"]').textContent=t('hire');
+ document.querySelector('[data-i="role"]').textContent=t('role');
+ document.querySelector('[data-i="built"]').textContent=t('built');
+ var m=(location.hash||'').match(/^#\/p\/([\w-]+)/);var app=document.getElementById('app');
+ if(m){var p=P.filter(function(x){return x.id===m[1]})[0];if(p){app.innerHTML=detailHTML(p);window.scrollTo(0,0);afterRender(false);return;}}
+ app.innerHTML=homeHTML();afterRender(true);
+}
+
+/* ============ animations & interactions ============ */
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function afterRender(isHome){
+ bindMag();bindTilt();
+ if(reduce){document.querySelectorAll('.reveal').forEach(function(e){e.style.opacity=1;e.style.transform='none'});return;}
+ if(isHome){
+   gsap.to('.hero .line>span',{y:0,duration:1,ease:'expo.out',stagger:.12,delay:.1});
+   gsap.to('.hero .reveal',{opacity:1,y:0,duration:.9,ease:'power3.out',stagger:.1,delay:.5});
+   // stat count-up
+   gsap.utils.toArray('[data-count]').forEach(function(el){
+     var raw=el.getAttribute('data-count'),num=parseFloat(raw)||0,suf=raw.replace(/[0-9.]/g,'');
+     ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){
+       gsap.fromTo(el,{innerText:0},{innerText:num,duration:1.4,ease:'power2.out',snap:{innerText:1},onUpdate:function(){el.innerText=Math.round(el.innerText)+suf}});
+     }});
+   });
+ }
+ // section/card reveals (one subtle pass)
+ gsap.utils.toArray('.reveal:not(.hero .reveal)').forEach(function(el){
+   ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:function(){gsap.to(el,{opacity:1,y:0,duration:.7,ease:'power3.out'})}});
+ });
+ gsap.utils.toArray('.card.reveal').forEach(function(el,i){
+   ScrollTrigger.create({trigger:el,start:'top 92%',once:true,onEnter:function(){gsap.to(el,{opacity:1,y:0,duration:.6,ease:'power3.out',delay:(i%2)*.08})}});
+ });
+ ScrollTrigger.refresh();
+}
+/* magnetic buttons */
+function bindMag(){document.querySelectorAll('[data-mag]').forEach(function(el){
+ if(el._mag)return;el._mag=1;
+ el.addEventListener('mousemove',function(e){var r=el.getBoundingClientRect();gsap.to(el,{x:(e.clientX-r.left-r.width/2)*.3,y:(e.clientY-r.top-r.height/2)*.4,duration:.3});});
+ el.addEventListener('mouseleave',function(){gsap.to(el,{x:0,y:0,duration:.4,ease:'elastic.out(1,.4)'});});
+});}
+/* 3D tilt cards + glow */
+function bindTilt(){if(reduce||matchMedia('(hover:none)').matches)return;
+ document.querySelectorAll('.tilt').forEach(function(el){
+  if(el._tilt)return;el._tilt=1;
+  el.addEventListener('mousemove',function(e){var r=el.getBoundingClientRect();var px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+   el.style.transform='perspective(900px) rotateY('+((px-.5)*8)+'deg) rotateX('+((.5-py)*8)+'deg) translateY(-4px)';
+   el.style.setProperty('--mx',(px*100)+'%');el.style.setProperty('--my',(py*100)+'%');});
+  el.addEventListener('mouseleave',function(){el.style.transform='';});
+ });
+}
+/* custom cursor */
+(function(){if(matchMedia('(hover:none)').matches)return;
+ document.body.classList.add('hascursor');
+ var cur=document.querySelector('.cur'),dot=document.querySelector('.curdot');
+ var x=innerWidth/2,y=innerHeight/2,cx=x,cy=y;
+ addEventListener('mousemove',function(e){x=e.clientX;y=e.clientY;dot.style.transform='translate('+x+'px,'+y+'px)';
+   var i=e.target.closest('a,button,.card,[data-mag],.back');cur.classList.toggle('big',!!i);});
+ (function loop(){cx+=(x-cx)*.18;cy+=(y-cy)*.18;cur.style.transform='translate('+cx+'px,'+cy+'px)';requestAnimationFrame(loop);})();
+})();
+
+/* ============ Three.js node network ============ */
+(function(){
+ var canvas=document.getElementById('net');
+ if(!window.THREE){canvas.style.display='none';return;}
+ var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+ var scene=new THREE.Scene();
+ var cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);cam.position.z=15;
+ var group=new THREE.Group();scene.add(group);
+ var N=reduce?90:150, R=8, pos=[],col=[];
+ var c1=new THREE.Color(0x7b61ff),c2=new THREE.Color(0x28e0cf);
+ for(var i=0;i<N;i++){ // fibonacci sphere
+   var yy=1-(i/(N-1))*2, r=Math.sqrt(1-yy*yy), th=i*2.399963;
+   var jitter=.72+Math.random()*.28;
+   var vx=Math.cos(th)*r*R*jitter, vy=yy*R*jitter, vz=Math.sin(th)*r*R*jitter;
+   pos.push(vx,vy,vz);
+   var c=c1.clone().lerp(c2,(yy+1)/2);col.push(c.r,c.g,c.b);
+ }
+ var pgeo=new THREE.BufferGeometry();
+ pgeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+ pgeo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+ var pmat=new THREE.PointsMaterial({size:.16,vertexColors:true,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false});
+ group.add(new THREE.Points(pgeo,pmat));
+ // edges between near points
+ var lp=[],lc=[],D=3.4;
+ for(var a=0;a<N;a++)for(var b=a+1;b<N;b++){
+   var ax=pos[a*3],ay=pos[a*3+1],az=pos[a*3+2],bx=pos[b*3],by=pos[b*3+1],bz=pos[b*3+2];
+   var dx=ax-bx,dy=ay-by,dz=az-bz,d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+   if(d<D){lp.push(ax,ay,az,bx,by,bz);
+     lc.push(col[a*3],col[a*3+1],col[a*3+2],col[b*3],col[b*3+1],col[b*3+2]);}
+ }
+ var lgeo=new THREE.BufferGeometry();
+ lgeo.setAttribute('position',new THREE.Float32BufferAttribute(lp,3));
+ lgeo.setAttribute('color',new THREE.Float32BufferAttribute(lc,3));
+ var lmat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false});
+ group.add(new THREE.LineSegments(lgeo,lmat));
+ var mx=0,my=0;
+ addEventListener('mousemove',function(e){mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+ function resize(){renderer.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();}
+ addEventListener('resize',resize);resize();
+ var scroll=0;addEventListener('scroll',function(){scroll=scrollY;});
+ var run=true;document.addEventListener('visibilitychange',function(){run=!document.hidden;});
+ var autoY=0,tmx=0,tmy=0;
+ (function loop(){requestAnimationFrame(loop);if(!run)return;
+   autoY+=reduce?0:.0011;                 // 은은한 자동 회전
+   tmx+=(mx-tmx)*.05; tmy+=(my-tmy)*.05;  // 마우스 위치로 부드럽게 수렴
+   group.rotation.y=autoY+tmx*0.9;        // 좌우 양방향 시차
+   group.rotation.x=tmy*0.6;              // 상하 양방향 시차
+   cam.position.z=15+scroll*.006;
+   renderer.render(scene,cam);
+ })();
+})();
+
+/* ============ boot ============ */
+addEventListener('hashchange',function(){
+ if(/^#\/p\//.test(location.hash))render();
+ else if(location.hash==='#work'||location.hash==='#contact'){if(!document.getElementById('work'))render();var el=document.querySelector(location.hash);if(el)el.scrollIntoView({behavior:'smooth'});}
+ else render();
+});
+(function(){var s;try{s=localStorage.getItem('pf-lang')}catch(e){}
+ document.getElementById('yr').textContent=new Date().getFullYear();
+ setLang(s||'en');})();
+</script>
+</body>
+</html>
